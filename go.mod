@@ -1,1 +1,3 @@
-module github.com/agext/levenshtein
+module github.com/vcaesar/leven
+
+go 1.14
