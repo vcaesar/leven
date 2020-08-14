@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package levenshtein
+package leven
 
 import (
 	"testing"
@@ -20,7 +20,7 @@ import (
 
 func Test_Params(t *testing.T) {
 	// Different allocations should not be equal.
-	if NewParams() == NewParams() {
+	if NewParams() == defaultParams {
 		t.Errorf(`NewParams() == NewParams()`)
 	}
 

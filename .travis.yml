@@ -1,30 +1,21 @@
 language: go
-sudo: false
-matrix:
-  fast_finish: true
-  include:
-    - go: 1.14.x
-      env: TEST_METHOD=goveralls
-    - go: 1.13.x
-    - go: 1.12.x
-    - go: 1.11.x
-    - go: 1.10.x
-    - go: tip
-    - go: 1.9.x
-    - go: 1.8.x
-    - go: 1.7.x
-    - go: 1.6.x
-    - go: 1.5.x
-  allow_failures:
-    - go: tip
-    - go: 1.11.x
-    - go: 1.10.x
-    - go: 1.9.x
-    - go: 1.8.x
-    - go: 1.7.x
-    - go: 1.6.x
-    - go: 1.5.x
-script: ./test.sh $TEST_METHOD
-notifications:
-  email:
-    on_success: never
+
+go:
+  # - 1.7.x
+  # - 1.8.x
+  # - 1.9.x
+  # - 1.10.x
+  # - 1.11.x
+  # - 1.12.x
+  # - 1.13.x
+  - 1.15.x
+  # - tip
+
+install:
+  - export PATH=$PATH:$HOME/gopath/bin
+  # - go get -u github.com/go-ego/cedar
+  - go get -t -d -v ./...
+  # - go get -u -v -t ./...
+# notifications:
+#   email:
+#     - .com
