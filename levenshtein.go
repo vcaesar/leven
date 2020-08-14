@@ -25,7 +25,7 @@ The `Match` function provides a similarity metric, with the same range and meani
 
 The underlying `Calculate` function is also exported, to allow the building of other derivative metrics, if needed.
 */
-package levenshtein
+package leven
 
 // Calculate determines the Levenshtein distance between two strings, using
 // the given costs for each edit operation. It returns the distance along with
