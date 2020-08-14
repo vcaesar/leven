@@ -1,10 +1,10 @@
 # A Go package for calculating the Levenshtein distance between two strings
 
-[![Release](https://img.shields.io/github/release/agext/levenshtein.svg?style=flat)](https://github.com/agext/levenshtein/releases/latest)
-[![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](https://godoc.org/github.com/agext/levenshtein) 
-[![Build Status](https://travis-ci.org/agext/levenshtein.svg?branch=master&style=flat)](https://travis-ci.org/agext/levenshtein)
-[![Coverage Status](https://coveralls.io/repos/github/agext/levenshtein/badge.svg?style=flat)](https://coveralls.io/github/agext/levenshtein)
-[![Go Report Card](https://goreportcard.com/badge/github.com/agext/levenshtein?style=flat)](https://goreportcard.com/report/github.com/agext/levenshtein)
+[![Release](https://img.shields.io/github/release/vcaesar/leven.svg?style=flat)](https://github.com/vcaesar/leven/releases/latest)
+[![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](https://godoc.org/github.com/vcaesar/leven) 
+[![Build Status](https://travis-ci.org/vcaesar/leven.svg?branch=master&style=flat)](https://travis-ci.org/vcaesar/leven)
+[![Coverage Status](https://coveralls.io/repos/github/vcaesar/leven/badge.svg?style=flat)](https://coveralls.io/github/vcaesar/leven)
+[![Go Report Card](https://goreportcard.com/badge/github.com/vcaesar/leven?style=flat)](https://goreportcard.com/report/github.com/vcaesar/leven)
 
 
 This package implements distance and similarity metrics for strings, based on the Levenshtein measure, in [Go](http://golang.org).
@@ -13,7 +13,7 @@ This package implements distance and similarity metrics for strings, based on th
 
 v1.2.3 Stable: Guaranteed no breaking changes to the API in future v1.x releases. Probably safe to use in production, though provided on "AS IS" basis.
 
-This package is being actively maintained. If you encounter any problems or have any suggestions for improvement, please [open an issue](https://github.com/agext/levenshtein/issues). Pull requests are welcome.
+This package is being actively maintained. If you encounter any problems or have any suggestions for improvement, please [open an issue](https://github.com/vcaesar/leven/issues). Pull requests are welcome.
 
 ## Overview
 
@@ -30,7 +30,7 @@ The underlying `Calculate` function is also exported, to allow the building of o
 ## Installation
 
 ```
-go get github.com/agext/levenshtein
+go get github.com/vcaesar/leven
 ```
 
 ## License
