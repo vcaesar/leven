@@ -42,6 +42,7 @@ func Calculate(str1, str2 []rune, maxCost, insCost, subCost, delCost int) (dist,
 			break
 		}
 	}
+
 	str1, str2 = str1[prefixLen:], str2[prefixLen:]
 	l1 -= prefixLen
 	l2 -= prefixLen
@@ -55,11 +56,13 @@ func Calculate(str1, str2 []rune, maxCost, insCost, subCost, delCost int) (dist,
 		l2--
 		suffixLen++
 	}
+
 	// if the first string is empty, the distance is the length of the second string times the cost of insertion
 	if l1 == 0 {
 		dist = l2 * insCost
 		return
 	}
+
 	// if the second string is empty, the distance is the length of the first string times the cost of deletion
 	if l2 == 0 {
 		dist = l1 * delCost
@@ -119,6 +122,7 @@ func Calculate(str1, str2 []rune, maxCost, insCost, subCost, delCost int) (dist,
 				}
 				dy, d[doff] = d[doff], dy
 			}
+
 			for y, l = doff, doff+dlen-1; y < l; dy, d[y] = d[y], dy {
 				if str1[y] != str2[x] {
 					dy += subCost
@@ -131,6 +135,7 @@ func Calculate(str1, str2 []rune, maxCost, insCost, subCost, delCost int) (dist,
 					dy = c
 				}
 			}
+
 			if y < l1 {
 				if str1[y] != str2[x] {
 					dy += subCost
@@ -143,49 +148,53 @@ func Calculate(str1, str2 []rune, maxCost, insCost, subCost, delCost int) (dist,
 					dlen++
 				}
 			}
+
 			// fmt.Printf("%q -> %q: x=%d doff=%d dlen=%d d[%d:%d]=%v\n", str1, str2, x, doff, dlen, doff, doff+dlen, d[doff:doff+dlen])
 			if dlen == 0 {
 				dist = maxCost + 1
 				return
 			}
 		}
+
 		if doff+dlen-1 < l1 {
 			dist = maxCost + 1
 			return
 		}
 		dist = d[l1]
-	} else {
-		// ToDo: This is O(l1*l2) time and O(min(l1,l2)) space; investigate if it is
-		// worth to implement diagonal approach - O(l1*(1+dist)) time, up to O(l1*l2) space
-		// http://www.csse.monash.edu.au/~lloyd/tildeStrings/Alignment/92.IPL.html
 
-		// prefer the shorter string first, to minimize space; time is O(l1*l2) anyway;
-		// a swap also transposes the meanings of insertion and deletion.
-		if l1 > l2 {
-			str1, str2, l1, l2, insCost, delCost = str2, str1, l2, l1, delCost, insCost
-		}
-		d := make([]int, l1+1)
+		return
+	}
 
-		for y = 1; y <= l1; y++ {
-			d[y] = y * delCost
-		}
-		for x := 0; x < l2; x++ {
-			dy, d[0] = d[0], d[0]+insCost
-			for y = 0; y < l1; dy, d[y] = d[y], dy {
-				if str1[y] != str2[x] {
-					dy += subCost
-				}
-				if c = d[y] + delCost; c < dy {
-					dy = c
-				}
-				y++
-				if c = d[y] + insCost; c < dy {
-					dy = c
-				}
+	// ToDo: This is O(l1*l2) time and O(min(l1,l2)) space; investigate if it is
+	// worth to implement diagonal approach - O(l1*(1+dist)) time, up to O(l1*l2) space
+	// http://www.csse.monash.edu.au/~lloyd/tildeStrings/Alignment/92.IPL.html
+
+	// prefer the shorter string first, to minimize space; time is O(l1*l2) anyway;
+	// a swap also transposes the meanings of insertion and deletion.
+	if l1 > l2 {
+		str1, str2, l1, l2, insCost, delCost = str2, str1, l2, l1, delCost, insCost
+	}
+	d := make([]int, l1+1)
+
+	for y = 1; y <= l1; y++ {
+		d[y] = y * delCost
+	}
+	for x := 0; x < l2; x++ {
+		dy, d[0] = d[0], d[0]+insCost
+		for y = 0; y < l1; dy, d[y] = d[y], dy {
+			if str1[y] != str2[x] {
+				dy += subCost
+			}
+			if c = d[y] + delCost; c < dy {
+				dy = c
+			}
+			y++
+			if c = d[y] + insCost; c < dy {
+				dy = c
 			}
 		}
-		dist = d[l1]
 	}
+	dist = d[l1]
 
 	return
 }
