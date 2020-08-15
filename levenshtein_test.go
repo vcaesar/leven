@@ -179,7 +179,8 @@ func Test_Metrics(t *testing.T) {
 		if par == nil {
 			par = defaultParams
 		}
-		cost, lp, ls := Calculate([]rune(c.s1), []rune(c.s2), par.maxCost, par.insCost, par.subCost, par.delCost)
+
+		cost, lp, ls := Calculate([]rune(c.s1), []rune(c.s2), *par)
 		if cost != c.exp.cost {
 			t.Errorf("Cost: %q -> %q%s: got %d, want %d", c.s1, c.s2, c.desc, cost, c.exp.cost)
 		}
