@@ -18,6 +18,12 @@ import (
 	"testing"
 )
 
+var p *Params
+
+func init() {
+	p = NewParams()
+}
+
 func Test_Params(t *testing.T) {
 	// Different allocations should not be equal.
 	if NewParams() == defaultParams {
@@ -25,7 +31,6 @@ func Test_Params(t *testing.T) {
 	}
 
 	// Clone should not be equal to original allocation.
-	p := NewParams()
 	if p == p.Clone() {
 		t.Errorf(`p == p.Clone()`)
 	}
@@ -55,7 +60,9 @@ func Test_Params(t *testing.T) {
 	if p.bonusThreshold != .7 {
 		t.Errorf(`NewParams().bonusThreshold == %v, want %v`, p.bonusThreshold, .7)
 	}
+}
 
+func Test_Params_Setters(t *testing.T) {
 	// Setters
 	if p = NewParams().InsCost(2); p.insCost != 2 {
 		t.Errorf(`NewParams().InsCost(2).insCost == %v, want %v`, p.insCost, 2)
@@ -114,7 +121,9 @@ func Test_Params(t *testing.T) {
 	if p = NewParams().BonusThreshold(-7); p.bonusThreshold != .7 {
 		t.Errorf(`NewParams().BonusThreshold(-7).bonusThreshold == %v, want %v`, p.bonusThreshold, .7)
 	}
+}
 
+func Test_Params_Val(t *testing.T) {
 	// Cloning nil pointer should initiate with default values
 	var p1 *Params
 	p2 := p1.Clone()
