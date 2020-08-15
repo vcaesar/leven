@@ -121,6 +121,14 @@ func (p *Params) MinScore(v float64) *Params {
 	return p
 }
 
+// FilterScore overrides the default value of 0.3 for the filter similarity score.
+func (p *Params) FilterScore(v float64) *Params {
+	if v >= 0 {
+		p.filterScore = v
+	}
+	return p
+}
+
 // BonusPrefix overrides the default value for the maximum length of
 // common prefix to be considered for bonus by Match().
 // The new value must be zero or positive.
