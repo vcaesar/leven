@@ -1,4 +1,5 @@
 // Copyright 2016 ALRUX Inc.
+// Copyright 2016 vcaesar Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,7 +14,7 @@
 // limitations under the License.
 
 /*
-Package levenshtein implements distance and similarity metrics for strings, based on the Levenshtein measure.
+Package leven shtein implements distance and similarity metrics for strings, based on the Levenshtein measure.
 
 The Levenshtein `Distance` between two strings is the minimum total cost of edits that would convert the first string into the second. The allowed edit operations are insertions, deletions, and substitutions, all at character (one UTF-8 code point) level. Each operation has a default cost of 1, but each can be assigned its own cost equal to or greater than 0.
 
@@ -34,7 +35,7 @@ package leven
 // If maxCost is non-zero, the calculation stops as soon as the distance is determined
 // to be greater than maxCost. Therefore, any return value higher than maxCost is a
 // lower bound for the actual distance.
-func Calculate(str1, str2 []rune, maxCost, insCost, subCost, delCost int) (dist, prefixLen, suffixLen int) {
+func Calculate(str1, str2 []rune, p Params) (dist, prefixLen, suffixLen int) {
 	l1, l2 := len(str1), len(str2)
 	// trim common prefix, if any, as it doesn't affect the distance
 	for ; prefixLen < l1 && prefixLen < l2; prefixLen++ {
@@ -59,111 +60,128 @@ func Calculate(str1, str2 []rune, maxCost, insCost, subCost, delCost int) (dist,
 
 	// if the first string is empty, the distance is the length of the second string times the cost of insertion
 	if l1 == 0 {
-		dist = l2 * insCost
+		dist = l2 * p.insCost
 		return
 	}
 
 	// if the second string is empty, the distance is the length of the first string times the cost of deletion
 	if l2 == 0 {
-		dist = l1 * delCost
+		dist = l1 * p.delCost
 		return
 	}
 
+	// // variables used in inner "for" loops
+	// var y, dy, c, l int
+
+	// if maxCost is greater than or equal to the maximum possible distance, it's equivalent to 'unlimited'
+	if p.maxCost > 0 {
+		if p.subCost < p.delCost+p.insCost {
+			if p.maxCost >= l1*p.subCost+(l2-l1)*p.insCost {
+				p.maxCost = 0
+			}
+		} else {
+			if p.maxCost >= l1*p.delCost+l2*p.insCost {
+				p.maxCost = 0
+			}
+		}
+	}
+
+	if p.maxCost > 0 {
+		dist = maxCost0(str1, str2, l1, l2, p)
+		return
+	}
+
+	dist = maxCost1(str1, str2, l1, l2, p)
+	return
+}
+
+func maxCost0(str1, str2 []rune, l1, l2 int, p Params) (dist int) {
 	// variables used in inner "for" loops
 	var y, dy, c, l int
 
-	// if maxCost is greater than or equal to the maximum possible distance, it's equivalent to 'unlimited'
-	if maxCost > 0 {
-		if subCost < delCost+insCost {
-			if maxCost >= l1*subCost+(l2-l1)*insCost {
-				maxCost = 0
-			}
-		} else {
-			if maxCost >= l1*delCost+l2*insCost {
-				maxCost = 0
-			}
-		}
+	// prefer the longer string first, to minimize time;
+	// a swap also transposes the meanings of insertion and deletion.
+	if l1 < l2 {
+		str1, str2, l1, l2, p.insCost, p.delCost = str2, str1, l2, l1, p.delCost, p.insCost
 	}
 
-	if maxCost > 0 {
-		// prefer the longer string first, to minimize time;
-		// a swap also transposes the meanings of insertion and deletion.
-		if l1 < l2 {
-			str1, str2, l1, l2, insCost, delCost = str2, str1, l2, l1, delCost, insCost
-		}
-
-		// the length differential times cost of deletion is a lower bound for the cost;
-		// if it is higher than the maxCost, there is no point going into the main calculation.
-		if dist = (l1 - l2) * delCost; dist > maxCost {
-			return
-		}
-
-		d := make([]int, l1+1)
-
-		// offset and length of d in the current row
-		doff, dlen := 0, 1
-		for y, dy = 1, delCost; y <= l1 && dy <= maxCost; dlen++ {
-			d[y] = dy
-			y++
-			dy = y * delCost
-		}
-		// fmt.Printf("%q -> %q: init doff=%d dlen=%d d[%d:%d]=%v\n", str1, str2, doff, dlen, doff, doff+dlen, d[doff:doff+dlen])
-
-		for x := 0; x < l2; x++ {
-			dy, d[doff] = d[doff], d[doff]+insCost
-			for doff < l1 && d[doff] > maxCost && dlen > 0 {
-				if str1[doff] != str2[x] {
-					dy += subCost
-				}
-				doff++
-				dlen--
-				if c = d[doff] + insCost; c < dy {
-					dy = c
-				}
-				dy, d[doff] = d[doff], dy
-			}
-
-			for y, l = doff, doff+dlen-1; y < l; dy, d[y] = d[y], dy {
-				if str1[y] != str2[x] {
-					dy += subCost
-				}
-				if c = d[y] + delCost; c < dy {
-					dy = c
-				}
-				y++
-				if c = d[y] + insCost; c < dy {
-					dy = c
-				}
-			}
-
-			if y < l1 {
-				if str1[y] != str2[x] {
-					dy += subCost
-				}
-				if c = d[y] + delCost; c < dy {
-					dy = c
-				}
-				for ; dy <= maxCost && y < l1; dy, d[y] = dy+delCost, dy {
-					y++
-					dlen++
-				}
-			}
-
-			// fmt.Printf("%q -> %q: x=%d doff=%d dlen=%d d[%d:%d]=%v\n", str1, str2, x, doff, dlen, doff, doff+dlen, d[doff:doff+dlen])
-			if dlen == 0 {
-				dist = maxCost + 1
-				return
-			}
-		}
-
-		if doff+dlen-1 < l1 {
-			dist = maxCost + 1
-			return
-		}
-		dist = d[l1]
-
+	// the length differential times cost of deletion is a lower bound for the cost;
+	// if it is higher than the maxCost, there is no point going into the main calculation.
+	if dist = (l1 - l2) * p.delCost; dist > p.maxCost {
 		return
 	}
+
+	d := make([]int, l1+1)
+
+	// offset and length of d in the current row
+	doff, dlen := 0, 1
+	for y, dy = 1, p.delCost; y <= l1 && dy <= p.maxCost; dlen++ {
+		d[y] = dy
+		y++
+		dy = y * p.delCost
+	}
+	// fmt.Printf("%q -> %q: init doff=%d dlen=%d d[%d:%d]=%v\n", str1, str2, doff, dlen, doff, doff+dlen, d[doff:doff+dlen])
+
+	for x := 0; x < l2; x++ {
+		dy, d[doff] = d[doff], d[doff]+p.insCost
+		for doff < l1 && d[doff] > p.maxCost && dlen > 0 {
+			if str1[doff] != str2[x] {
+				dy += p.subCost
+			}
+			doff++
+			dlen--
+			if c = d[doff] + p.insCost; c < dy {
+				dy = c
+			}
+			dy, d[doff] = d[doff], dy
+		}
+
+		for y, l = doff, doff+dlen-1; y < l; dy, d[y] = d[y], dy {
+			if str1[y] != str2[x] {
+				dy += p.subCost
+			}
+			if c = d[y] + p.delCost; c < dy {
+				dy = c
+			}
+
+			y++
+			if c = d[y] + p.insCost; c < dy {
+				dy = c
+			}
+		}
+
+		if y < l1 {
+			if str1[y] != str2[x] {
+				dy += p.subCost
+			}
+			if c = d[y] + p.delCost; c < dy {
+				dy = c
+			}
+			for ; dy <= p.maxCost && y < l1; dy, d[y] = dy+p.delCost, dy {
+				y++
+				dlen++
+			}
+		}
+
+		// fmt.Printf("%q -> %q: x=%d doff=%d dlen=%d d[%d:%d]=%v\n", str1, str2, x, doff, dlen, doff, doff+dlen, d[doff:doff+dlen])
+		if dlen == 0 {
+			dist = p.maxCost + 1
+			return
+		}
+	}
+
+	if doff+dlen-1 < l1 {
+		dist = p.maxCost + 1
+		return
+	}
+	dist = d[l1]
+
+	return
+}
+
+func maxCost1(str1, str2 []rune, l1, l2 int, p Params) (dist int) {
+	// variables used in inner "for" loops
+	var y, dy, c int
 
 	// ToDo: This is O(l1*l2) time and O(min(l1,l2)) space; investigate if it is
 	// worth to implement diagonal approach - O(l1*(1+dist)) time, up to O(l1*l2) space
@@ -172,28 +190,30 @@ func Calculate(str1, str2 []rune, maxCost, insCost, subCost, delCost int) (dist,
 	// prefer the shorter string first, to minimize space; time is O(l1*l2) anyway;
 	// a swap also transposes the meanings of insertion and deletion.
 	if l1 > l2 {
-		str1, str2, l1, l2, insCost, delCost = str2, str1, l2, l1, delCost, insCost
+		str1, str2, l1, l2, p.insCost, p.delCost = str2, str1, l2, l1, p.delCost, p.insCost
 	}
 	d := make([]int, l1+1)
 
 	for y = 1; y <= l1; y++ {
-		d[y] = y * delCost
+		d[y] = y * p.delCost
 	}
+
 	for x := 0; x < l2; x++ {
-		dy, d[0] = d[0], d[0]+insCost
+		dy, d[0] = d[0], d[0]+p.insCost
 		for y = 0; y < l1; dy, d[y] = d[y], dy {
 			if str1[y] != str2[x] {
-				dy += subCost
+				dy += p.subCost
 			}
-			if c = d[y] + delCost; c < dy {
+			if c = d[y] + p.delCost; c < dy {
 				dy = c
 			}
 			y++
-			if c = d[y] + insCost; c < dy {
+			if c = d[y] + p.insCost; c < dy {
 				dy = c
 			}
 		}
 	}
+
 	dist = d[l1]
 
 	return
@@ -206,7 +226,8 @@ func Distance(str1, str2 string, p *Params) int {
 	if p == nil {
 		p = defaultParams
 	}
-	dist, _, _ := Calculate([]rune(str1), []rune(str2), p.maxCost, p.insCost, p.subCost, p.delCost)
+
+	dist, _, _ := Calculate([]rune(str1), []rune(str2), *p)
 	return dist
 }
 
@@ -278,7 +299,8 @@ func Match(str1, str2 string, p *Params) float64 {
 		}
 	}
 
-	dist, pl, _ := Calculate(s1, s2, max, p.insCost, p.subCost, p.delCost)
+	p.maxCost = max
+	dist, pl, _ := Calculate(s1, s2, *p)
 	if max > 0 && dist > max {
 		return 0
 	}
