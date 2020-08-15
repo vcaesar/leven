@@ -84,7 +84,9 @@ func Calculate(str1, str2 []rune, p Params) (dist, prefixLen, suffixLen int) {
 				p.maxCost = 0
 			}
 		}
+	}
 
+	if p.maxCost > 0 {
 		dist = maxCost0(str1, str2, l1, l2, p)
 		return
 	}
