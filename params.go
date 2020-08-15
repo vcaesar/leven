@@ -1,4 +1,5 @@
 // Copyright 2016 ALRUX Inc.
+// Copyright 2019 vcaesar Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,11 +18,12 @@ package leven
 // Params represents a set of parameter values for the various formulas involved
 // in the calculation of the Levenshtein string metrics.
 type Params struct {
-	insCost        int
-	subCost        int
-	delCost        int
-	maxCost        int
-	minScore       float64
+	insCost, subCost int
+	delCost          int
+	maxCost          int
+
+	minScore, filterScore float64
+
 	bonusPrefix    int
 	bonusScale     float64
 	bonusThreshold float64
@@ -34,11 +36,14 @@ var (
 // NewParams creates a new set of parameters and initializes it with the default values.
 func NewParams() *Params {
 	return &Params{
-		insCost:        1,
-		subCost:        1,
-		delCost:        1,
-		maxCost:        0,
-		minScore:       0,
+		insCost: 1,
+		subCost: 1,
+		delCost: 1,
+		maxCost: 0,
+
+		minScore:    0,
+		filterScore: 0.3,
+
 		bonusPrefix:    4,
 		bonusScale:     .1,
 		bonusThreshold: .7,
@@ -51,12 +56,16 @@ func (p *Params) Clone() *Params {
 	if p == nil {
 		return NewParams()
 	}
+
 	return &Params{
-		insCost:        p.insCost,
-		subCost:        p.subCost,
-		delCost:        p.delCost,
-		maxCost:        p.maxCost,
-		minScore:       p.minScore,
+		insCost: p.insCost,
+		subCost: p.subCost,
+		delCost: p.delCost,
+		maxCost: p.maxCost,
+
+		minScore:    p.minScore,
+		filterScore: p.filterScore,
+
 		bonusPrefix:    p.bonusPrefix,
 		bonusScale:     p.bonusScale,
 		bonusThreshold: p.bonusThreshold,
@@ -108,6 +117,14 @@ func (p *Params) MaxCost(v int) *Params {
 func (p *Params) MinScore(v float64) *Params {
 	if v >= 0 {
 		p.minScore = v
+	}
+	return p
+}
+
+// FilterScore overrides the default value of 0.3 for the filter similarity score.
+func (p *Params) FilterScore(v float64) *Params {
+	if v >= 0 {
+		p.filterScore = v
 	}
 	return p
 }
