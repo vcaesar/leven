@@ -15,7 +15,7 @@ func init() {
 }
 
 func Test_Seq(t *testing.T) {
-	p := *NewParams().FilterScore(0.2)
+	p := *NewParams().FilterScore(0.6)
 	s1 := "City of Seattle, 西雅图都会区"
 	s2 := "The Space Nedle, 西雅图太空针"
 
@@ -33,5 +33,5 @@ func Test_Seq(t *testing.T) {
 
 	s := SeqRatio(seq1, seq2, p)
 	fmt.Println("cut with ratio: ", s)
-	tt.Equal(t, 0.5014285714285716, s)
+	tt.Equal(t, 0.4363157894736842, s)
 }

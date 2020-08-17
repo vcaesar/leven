@@ -42,7 +42,7 @@ func NewParams() *Params {
 		maxCost: 0,
 
 		minScore:    0,
-		filterScore: 0.3,
+		filterScore: 0.5,
 
 		bonusPrefix:    4,
 		bonusScale:     .1,
