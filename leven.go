@@ -52,15 +52,14 @@ func MatchMatrix(s1, s2 []string, p Params) (match [][]MatchSeq, f float64) {
 	for i := 0; i < len1; i++ {
 		var match1 []MatchSeq
 		for h := 0; h < len2; h++ {
-
-			d := Distance(s1[i], s2[h], &p)
+			// d := Distance(s1[i], s2[h], &p)
 			r := Similarity(s1[i], s2[h], &p)
 			if r > p.filterScore {
 				m1 := MatchSeq{
-					Index1:   i,
-					Index2:   h,
-					Ratio:    r,
-					Distance: d,
+					Index1: i,
+					Index2: h,
+					Ratio:  r,
+					// Distance: d,
 				}
 
 				if r == 1 && i == h {
