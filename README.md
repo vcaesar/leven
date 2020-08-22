@@ -1,19 +1,55 @@
 # A Go package for calculating the Levenshtein distance between two strings
 
+[![Build Status](https://github.com/vcaesar/leven/workflows/Go/badge.svg)](https://github.com/vcaesar/leven/commits/master)
+[![CircleCI Status](https://circleci.com/gh/vcaesar/leven.svg?style=shield)](https://circleci.com/gh/vcaesar/leven)
+[![codecov](https://codecov.io/gh/vcaesar/leven/branch/master/graph/badge.svg)](https://codecov.io/gh/vcaesar/leven)
+[![Build Status](https://travis-ci.org/vcaesar/leven.svg?branch=master&style=flat)](https://travis-ci.org/vcaesar/leven)
+<!-- [![Coverage Status](https://coveralls.io/repos/github/vcaesar/leven/badge.svg?style=flat)](https://coveralls.io/github/vcaesar/leven) -->
+[![Go Report Card](https://goreportcard.com/badge/github.com/vcaesar/leven?style=flat)](https://goreportcard.com/report/github.com/vcaesar/leven)
 [![Release](https://img.shields.io/github/release/vcaesar/leven.svg?style=flat)](https://github.com/vcaesar/leven/releases/latest)
 [![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg?style=flat)](https://godoc.org/github.com/vcaesar/leven) 
-[![Build Status](https://travis-ci.org/vcaesar/leven.svg?branch=master&style=flat)](https://travis-ci.org/vcaesar/leven)
-[![Coverage Status](https://coveralls.io/repos/github/vcaesar/leven/badge.svg?style=flat)](https://coveralls.io/github/vcaesar/leven)
-[![Go Report Card](https://goreportcard.com/badge/github.com/vcaesar/leven?style=flat)](https://goreportcard.com/report/github.com/vcaesar/leven)
-
 
 This package implements distance and similarity metrics for strings, based on the Levenshtein measure, in [Go](http://golang.org).
 
-## Project Status
+## Use
+```Go
+package main
 
-v1.2.3 Stable: Guaranteed no breaking changes to the API in future v1.x releases. Probably safe to use in production, though provided on "AS IS" basis.
+import (
+	"fmt"
 
-This package is being actively maintained. If you encounter any problems or have any suggestions for improvement, please [open an issue](https://github.com/vcaesar/leven/issues). Pull requests are welcome.
+	"github.com/go-ego/gse"
+	"github.com/vcaesar/leven"
+)
+
+var seg gse.Segmenter
+
+func init() {
+	seg.LoadDict()
+}
+
+func main() {
+	p := *leven.NewParams().FilterScore(0.6)
+
+	s1 := "City of Seattle, 西雅图都会区"
+	s2 := "The Space Nedle, 西雅图太空针, 都会区"
+
+	r := leven.Ratio(s1, s2, p)
+	fmt.Println(r)
+
+	m := leven.MatchNew(s1, s2)
+	fmt.Println(m)
+
+	d := leven.DistanceNew(s1, s2)
+	fmt.Println(d)
+
+	seq1 := seg.Cut(s1)
+	seq2 := seg.Cut(s2)
+
+	s := leven.SeqRatio(seq1, seq2, p)
+	fmt.Println("cut with ratio: ", s)
+}
+```
 
 ## Overview
 
