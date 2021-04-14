@@ -9,7 +9,7 @@ jobs:
   build:
     docker:
       # - image: go-vgo/go:1.13.3
-      - image: golang:1.14.7
+      - image: golang:1.16.3
     working_directory: /gopath/src/github.com/vcaesar/leven
     steps:
       - checkout
