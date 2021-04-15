@@ -23,6 +23,7 @@ coverage.out
 ._*
 .cache
 .DS_Store
+.vscode
 .idea
 .project
 .settings
